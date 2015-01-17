@@ -104,9 +104,10 @@ ifeq ($(platform), unix)
 	TARGETLIB := $(TARGET_NAME)_libretro.so
 	TARGETOS=linux  
 	fpic := -fPIC
-	SHARED := -shared -Wl,--version-script=src/osd/retro/link.T -Wl,--no-undefined
-	CCOMFLAGS += $(fpic) -fsigned-char -finline  -fno-common -fno-builtin -fweb -frename-registers -falign-functions=16
-	PLATCFLAGS +=  -DALIGN_INTS -DALIGN_SHORTS -fstrict-aliasing -fno-merge-constants  $(fpic)
+	SHARED := -shared -static-libgcc -static-libstdc++ -Wl,--no-undefined
+	CCOMFLAGS += $(fpic) -mthumb-interwork -funroll-loops
+	PLATCFLAGS += -DALIGN_INTS -DALIGN_SHORTS -DHAVE_POSIX_MEMALIGN -DRETRO_AND $(fpic) -DUSE_ARM_COMPAT_DELEGATE -DUSE_ARM_HACK
+	
 	ifeq ($(VRENDER),opengl)
 		PLATCFLAGS += -DHAVE_GL
 		LIBS += -lGL
@@ -471,7 +472,7 @@ CROSS_BUILD_OSD = $(OSD)
 # uncomment the force the universal DRC to always use the C backend
 # you may need to do this if your target architecture does not have
 # a native backend
-# FORCE_DRC_C_BACKEND = 1
+FORCE_DRC_C_BACKEND = 1
 
 #-------------------------------------------------
 # specify build options; see each option below 
